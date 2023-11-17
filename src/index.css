@@ -17,3 +17,13 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.app {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to bottom right, rgb(234, 171, 234), rgb(141, 198, 141));
+  min-width: 100vw;
+  min-height: 100vh;
+  width: max-content;
+  height: max-content;
+}
