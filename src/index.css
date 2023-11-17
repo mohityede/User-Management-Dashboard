@@ -27,3 +27,26 @@ code {
   width: max-content;
   height: max-content;
 }
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 20px;
+}
+
+.pagination .btn {
+  width: 40px;
+  height: 40px;
+  margin: 3px 3px;
+  cursor: pointer;
+
+  background: transparent;
+  color: #000000;
+}
+
+.pagination .active {
+  font-weight: bold;
+  width: 40px;
+  background: rgb(223, 223, 223);
+}

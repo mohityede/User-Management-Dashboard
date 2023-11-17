@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
+import Pagination from "./Pagination";
+import Row from "./Row";
 
 function Dashboard() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false)
+    const [currPage, setCurrPage] = useState(1);
+    const [searchedUsers, setSearchUsers] = useState([]);
+    const [search, setSearch] = useState("");
 
     const fetchData = async () => {
         try {
@@ -12,8 +17,8 @@ function Dashboard() {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const result = await response.json();
-            console.log(result);
             setUsers(result);
+            setSearchUsers(result);
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -25,9 +30,43 @@ function Dashboard() {
         fetchData();
     }, [])
 
+    const searchInputHandler = (keyword) => {
+        setSearch(keyword);
+        if (keyword === "") {
+            setSearchUsers(users);
+            return;
+        }
+        let newUsers = users.filter((user) => {
+            if (Object.values(user).toString().toLowerCase().indexOf(keyword) > -1) return true;
+        });
+        setSearchUsers(newUsers);
+    }
+
+    const selectPageHandler = (selectedPage) => {
+        console.log("len", selectedPage)
+        if (selectedPage >= 1 && selectedPage <= (users?.length || 1) / 5 && selectedPage !== currPage) {
+            setCurrPage(selectedPage)
+        }
+    }
+
     return (
 
-        <div class="p-4">
+        <div className="p-4">
+            <div className="relative flex items-center h-8 rounded-lg focus-within:shadow-lg bg-white overflow-hidden">
+                <div className="grid place-items-center w-8 text-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+
+                <input
+                    type="text"
+                    value={ search }
+                    onChange={ (e) => searchInputHandler(e.target.value.toLowerCase()) }
+                    className="peer outline-none text-sm text-gray-700 pr-2"
+                    placeholder="Search Here..." />
+            </div>
+
             { loading ?
                 <span>Loading...</span>
                 :
@@ -43,19 +82,23 @@ function Dashboard() {
                     </thead>
                     <tbody>
                         {
-                            users.map((user, ind) => {
-                                return (
-                                    <tr key={ ind } className={ (ind % 2 === 0) ? "bg-white" : "bg-gray-100" }>
-                                        <td className="p-2 text-sm text-gray-700">{ user.id }</td>
-                                        <td className="p-2 text-sm text-gray-700">{ user.username }</td>
-                                        <td className="p-2 text-sm text-gray-700">{ user.email }</td>
-                                        <td className="p-2 text-sm text-gray-700">{ user.phone }</td>
-                                    </tr>
-                                )
-                            })
+                            searchedUsers.length === 0 ?
+                                <tr>
+                                    <td className="p-2 text-sm text-gray-700">No Users found!</td>
+                                </tr>
+                                :
+                                <Row searchedUsers={ searchedUsers.slice(currPage * 5 - 5, currPage * 5) } />
                         }
                     </tbody>
                 </table>
+            }
+            {
+                searchedUsers.length > 5 &&
+                <Pagination
+                    selectPageHandler={ selectPageHandler }
+                    currPage={ currPage }
+                    totalEmojis={ searchedUsers?.length } />
+
             }
         </div>
 
