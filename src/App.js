@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Dashboard from "./components/dashboard";
-import Login from "./components/login";
+import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
 import "./index.css"
 
 function App() {
