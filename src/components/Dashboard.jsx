@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Pagination from "./Pagination";
+import Model from "./Model";
 import Row from "./Row";
 
 function Dashboard() {
@@ -8,11 +9,14 @@ function Dashboard() {
     const [currPage, setCurrPage] = useState(1);
     const [searchedUsers, setSearchUsers] = useState([]);
     const [search, setSearch] = useState("");
+    const [report, setReport] = useState(null);
+    const [showModel, setShowModel] = useState(false);
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const response = await fetch('https://jsonplaceholder.typicode.com/users');
+            const URL = "https://jsonplaceholder.typicode.com/users";
+            const response = await fetch(URL);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -43,65 +47,81 @@ function Dashboard() {
     }
 
     const selectPageHandler = (selectedPage) => {
-        console.log("len", selectedPage)
-        if (selectedPage >= 1 && selectedPage <= (users?.length || 1) / 5 && selectedPage !== currPage) {
+        if (selectedPage >= 1 && selectedPage <= (searchedUsers?.length || 1) / 5 && selectedPage !== currPage) {
             setCurrPage(selectedPage)
         }
     }
 
-    return (
+    const toggleModel = () => {
+        setShowModel(!showModel);
+    }
 
-        <div className="p-4">
-            <div className="relative flex items-center h-8 rounded-lg focus-within:shadow-lg bg-white overflow-hidden">
-                <div className="grid place-items-center w-8 text-gray-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+    const updateReport = (obj) => {
+        setReport(obj);
+        toggleModel();
+    }
+
+    return (
+        <>
+
+            <div className="p-4">
+                <div className="relative flex items-center h-8 rounded-lg focus-within:shadow-lg bg-white overflow-hidden">
+                    <div className="grid place-items-center w-8 text-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <input
+                        type="text"
+                        value={ search }
+                        onChange={ (e) => searchInputHandler(e.target.value.toLowerCase()) }
+                        className="peer outline-none text-sm text-gray-700 pr-2"
+                        placeholder="Search Here..." />
                 </div>
 
-                <input
-                    type="text"
-                    value={ search }
-                    onChange={ (e) => searchInputHandler(e.target.value.toLowerCase()) }
-                    className="peer outline-none text-sm text-gray-700 pr-2"
-                    placeholder="Search Here..." />
+                { loading ?
+                    <span>Loading...</span>
+                    :
+                    <table>
+                        <caption className="text-xl mb-2">Users</caption>
+                        <thead className="border-b-2 border-gray-200">
+                            <tr>
+                                <td className="p-2 text-sm font-semibold tracking-wide text-left">ID</td>
+                                <td className="p-2 text-sm font-semibold tracking-wide text-left">Username</td>
+                                <td className="p-2 text-sm font-semibold tracking-wide text-left">Email</td>
+                                <td className="p-2 text-sm font-semibold tracking-wide text-left">Phone</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                searchedUsers.length === 0 ?
+                                    <tr>
+                                        <td className="p-2 text-sm text-gray-700">No Users found!</td>
+                                    </tr>
+                                    :
+                                    <Row
+                                        searchedUsers={ searchedUsers.slice(currPage * 5 - 5, currPage * 5) }
+                                        updateReport={ updateReport }
+                                    />
+                            }
+                        </tbody>
+                    </table>
+                }
+                {
+                    searchedUsers.length > 5 &&
+                    <Pagination
+                        selectPageHandler={ selectPageHandler }
+                        currPage={ currPage }
+                        totalEmojis={ searchedUsers?.length } />
+                }
+
             </div>
-
-            { loading ?
-                <span>Loading...</span>
-                :
-                <table>
-                    <caption className="text-xl mb-2">Users</caption>
-                    <thead className="border-b-2 border-gray-200">
-                        <tr>
-                            <td className="p-2 text-sm font-semibold tracking-wide text-left">ID</td>
-                            <td className="p-2 text-sm font-semibold tracking-wide text-left">Username</td>
-                            <td className="p-2 text-sm font-semibold tracking-wide text-left">Email</td>
-                            <td className="p-2 text-sm font-semibold tracking-wide text-left">Phone</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            searchedUsers.length === 0 ?
-                                <tr>
-                                    <td className="p-2 text-sm text-gray-700">No Users found!</td>
-                                </tr>
-                                :
-                                <Row searchedUsers={ searchedUsers.slice(currPage * 5 - 5, currPage * 5) } />
-                        }
-                    </tbody>
-                </table>
-            }
             {
-                searchedUsers.length > 5 &&
-                <Pagination
-                    selectPageHandler={ selectPageHandler }
-                    currPage={ currPage }
-                    totalEmojis={ searchedUsers?.length } />
-
+                (showModel && report != null) &&
+                <Model user={ report } toggleModel={ toggleModel } />
             }
-        </div>
-
+        </>
     );
 }
 

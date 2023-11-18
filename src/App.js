@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
-import Dashboard from "./components/Dashboard";
-import Login from "./components/Login";
+import { useState } from "react";
+import Dashboard from "./components/dashboard";
+import Login from "./components/login";
 import "./index.css"
-import { render } from "@testing-library/react";
 
 function App() {
   const [showLogin, setShowLogin] = useState(true);

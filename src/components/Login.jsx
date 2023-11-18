@@ -12,10 +12,11 @@ function Login() {
             username,
             password
         }
+        // we have to check if user already present with input username using API
         setUsername("");
         setPassword("");
         try {
-            console.log("User Created", inputData);
+            // we will call post request here to api if we have any for account creation
             toast.success(`${inputData.username} is created`);
         } catch (error) {
             console.error(error);
